@@ -2,6 +2,8 @@
 const {app, BrowserWindow} = require('electron');
 const path = require('path');
 
+const {renderBoard, loadTileData} = require('./board');
+
 function createWindow () {
 
     const mainWindow = new BrowserWindow({

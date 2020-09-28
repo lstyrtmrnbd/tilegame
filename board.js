@@ -60,10 +60,11 @@ const loadFile = (filename) =>
                               (err, data) =>
                               err ? rej(err) : res(data)));
 
+// outputs in tilemap format ie. {x:durl}
 async function loadTileData(datafile) {
 
     const filedata = await loadFile(datafile);
-    return JSON.parse(filedata.toString()); // in tilemap format ie. {x:durl}
+    return JSON.parse(filedata.toString()); 
 }
 
 function range(size, startAt = 0) {
@@ -73,29 +74,26 @@ function range(size, startAt = 0) {
 // nice array of tile Images
 function tileDataToImages(tilemap) {
 
-    return range(Object.keys(tilemap).length)
+    return range(Object.keys(tilemap).length - 1)
         .map(i => {
-            
             const out = new Image();
-            out.src = tilemap[i];
-            
+            out.src = tilemap[i];            
             return out;
         });
 }
 
-const CTX = document.getElementById('canvas').getContext('2d');
-
-// coordinate images and board to produce render output to canvas
-function renderBoard(board, tilemap) {
+/**
+ * coordinate images and board to produce render output to canvas
+ * ctx: canvas context: document.getElementById('canvas').getContext('2d')
+ */
+const renderBoard = tilemap => ctx => board => {
 
     const images = tileDataToImages(tilemap);
 
     // scaling and transformation between the input image and
     //   rendered image go here; "shader pipe"
-    
-    // get Canvas, or inject into context somehow
 
-    const renderEach = forEach((arr,x,y) => {
+    forEach((arr,x,y) => {
 
         const index = arr[x][y];
         const img = images[index];
@@ -108,9 +106,9 @@ function renderBoard(board, tilemap) {
             y: h * y 
         };
         
-        CTX.drawImage(img, pos.x, pos.y);
-    });
-    
-    renderEach(board); // hot or not?
+        ctx.drawImage(img, pos.x, pos.y);
+
+    })(board);
 }
 
+module.export = { renderBoard, loadTileData };
