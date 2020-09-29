@@ -83,7 +83,7 @@ const tileDataToImages = tilemap =>
  * coordinate images and board to produce render output to canvas
  * ctx: canvas context: document.getElementById('canvas').getContext('2d')
  */
-const renderBoard = images => ctx => board => {
+const render = images => ctx => board => {
 
     // scaling and transformation between the input image and
     //   rendered image go here ie shading
@@ -106,7 +106,7 @@ const renderBoard = images => ctx => board => {
 }
 
 module.exports = {
-    renderBoard,
+    render,
     loadTileData,
     tileDataToImages,
     newBoard,

@@ -1,5 +1,5 @@
 const {
-    renderBoard,
+    render,
     loadTileData,
     tileDataToImages,
     newBoard,
@@ -7,18 +7,21 @@ const {
     setEach
 } = require('./board');
 
-const seedEngine = async (engineWork, interval) => {
+// 32ms interval: ~30fps
+const seedEngine = async (engineWork, interval = 32) => {
 
     const ctx = document.querySelector('canvas').getContext('2d');
+
+    // raise in scope
     const board = newBoard(64,64);
-    setEach(cur => cur+13)(board);
+    setEach(cur => Math.round(Math.random()) == 0 ? cur+13 : cur+4)(board);
     
     const tilemap = await loadTileData('tiledata.json');
     const images = tileDataToImages(tilemap);
     
-    //renderBoard(images)(ctx)(board);
+    const renderBoard = render(images)(ctx);
     
-    setInterval(renderBoard(images)(ctx), 32, board);
+    setInterval(renderBoard, interval, board);
 };
 
 // All of the Node.js APIs are available in the preload process.
