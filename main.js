@@ -2,8 +2,6 @@
 const {app, BrowserWindow} = require('electron');
 const path = require('path');
 
-const {renderBoard, loadTileData} = require('./board');
-
 function createWindow () {
 
     const mainWindow = new BrowserWindow({
@@ -17,7 +15,7 @@ function createWindow () {
     mainWindow.loadFile('index.html');
 
     // Open the DevTools.
-    // mainWindow.webContents.openDevTools()
+    mainWindow.webContents.openDevTools();
 }
 
 // This method will be called when Electron has finished

@@ -5,7 +5,7 @@
 /**
  *  General 2D array constructor, maintains consistent x and y lengths
  */
-function new2DArray(x, y, init = (x,y) => 0) {
+function newBoard(x, y, init = (x,y) => 0) {
 
     function* genX(y) {
         let i = 0;
@@ -35,9 +35,11 @@ function new2DArray(x, y, init = (x,y) => 0) {
 const forEach = (fun = (arr,x,y) => arr[x][y]) => arr => {
 
     const x = arr.length;
-    const y = arr[0].length;
     
     for(let i = 0; i < x; ++i) {
+
+        const y = arr[i].length;
+        
         for(let j = 0; j < y; ++j) {
             fun(arr, i, j);
         }
@@ -61,46 +63,38 @@ const loadFile = (filename) =>
                               err ? rej(err) : res(data)));
 
 // outputs in tilemap format ie. {x:durl}
-async function loadTileData(datafile) {
+const loadTileData = datafile =>
+      loadFile(datafile).then(filedata =>
+                              JSON.parse(filedata.toString()));
 
-    const filedata = await loadFile(datafile);
-    return JSON.parse(filedata.toString()); 
-}
+const range = (size, startAt = 0) => 
+      [...Array(size).keys()].map(i => i + startAt);
 
-function range(size, startAt = 0) {
-    return [...Array(size).keys()].map(i => i + startAt);
-}
-
-// nice array of tile Images
-function tileDataToImages(tilemap) {
-
-    return range(Object.keys(tilemap).length - 1)
-        .map(i => {
-            const out = new Image();
-            out.src = tilemap[i];            
-            return out;
-        });
-}
+// (promise of) nice array of tile Images, ordered same as the tilemap
+const tileDataToImages = tilemap =>
+      range(Object.keys(tilemap).length - 1)
+      .map(i => {
+          const out = new Image(8,8); // !! hardcoded dimensions
+          out.src = tilemap[i];
+          return out;
+      });
 
 /**
  * coordinate images and board to produce render output to canvas
  * ctx: canvas context: document.getElementById('canvas').getContext('2d')
  */
-const renderBoard = tilemap => ctx => board => {
-
-    const images = tileDataToImages(tilemap);
+const renderBoard = images => ctx => board => {
 
     // scaling and transformation between the input image and
-    //   rendered image go here; "shader pipe"
+    //   rendered image go here ie shading
 
     forEach((arr,x,y) => {
 
         const index = arr[x][y];
         const img = images[index];
 
-        const h = img.naturalHeight;
-        const w = img.naturalWidth; // this work??
-
+        const h = 8, w = 8;
+        
         const pos = {
             x: w * x,
             y: h * y 
@@ -111,4 +105,11 @@ const renderBoard = tilemap => ctx => board => {
     })(board);
 }
 
-module.export = { renderBoard, loadTileData };
+module.exports = {
+    renderBoard,
+    loadTileData,
+    tileDataToImages,
+    newBoard,
+    forEach,
+    setEach
+};
