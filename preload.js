@@ -22,8 +22,10 @@ const renderBoard = async () => {
     const images = tileDataToImages(tilemap);
     
     return (board) => {
-        console.log(`render cranked @ ${performance.now()}`);
+        const start = performance.now();
         render(images)(ctx)(board);
+        const nowms = Math.round(performance.now() - start);
+        console.log(`render cranked @${nowms}ms`);
     };
 };
 
