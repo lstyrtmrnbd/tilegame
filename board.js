@@ -15,8 +15,8 @@ function newBoard(x, y, init = (x,y) => 0) {
         }
     }
 
-    let j = 0;
     function* genY() {
+        let j = 0;
         while(j < y) {
             j++;
             yield(Array.from(genX(j)));
