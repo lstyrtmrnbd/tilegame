@@ -7,29 +7,37 @@ const {
     setEach
 } = require('./board');
 
-// 32ms interval: ~30fps
-const seedEngine = async (engineWork, interval = 32) => {
+// need for this?
+// process.env["NODE_OPTIONS"] = '--no-force-async-hooks-checks';
+
+const BOARD = newBoard(64,64);
+setEach(() => Math.round(Math.random() * 149))(BOARD);    
+
+// does set-up and returns the actual rendering fn
+const renderBoard = async () => {
 
     const ctx = document.querySelector('canvas').getContext('2d');
-
-    // raise in scope
-    const board = newBoard(64,64);
-    setEach(cur => Math.round(Math.random()) == 0 ? cur+13 : cur+4)(board);
     
     const tilemap = await loadTileData('tiledata.json');
     const images = tileDataToImages(tilemap);
     
-    const renderBoard = render(images)(ctx);
-    
-    setInterval(renderBoard, interval, board);
+    return (board) => {
+        console.log(`render cranked @ ${performance.now()}`);
+        render(images)(ctx)(board);
+    };
 };
 
 // All of the Node.js APIs are available in the preload process.
 // It has the same sandbox as a Chrome extension.
 window.addEventListener('DOMContentLoaded', async () => {
 
-    await seedEngine();
+    // 32ms interval: ~30fps
+    const primary = seedEngine(32); 
+    
+    await primary(await renderBoard(), BOARD);
 });
 
-// seed engine
-
+// produce async engine call at specified interval
+const seedEngine = interval => async (engine, ...args) => {
+    setInterval(engine, interval, ...args);
+}

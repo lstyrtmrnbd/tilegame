@@ -30,7 +30,7 @@ function newBoard(x, y, init = (x,y) => 0) {
  *  Board iteration primitive
  *    - give a function to get an function that calls the given function on
  *      every cell in its board parameter
- *    - raw 'for' loops are faster than mapping/forEaching
+ *    - 'for' loops faster than mapping/forEaching
  */
 const forEach = (fun = (arr,x,y) => arr[x][y]) => arr => {
 
@@ -70,7 +70,7 @@ const loadTileData = datafile =>
 const range = (size, startAt = 0) => 
       [...Array(size).keys()].map(i => i + startAt);
 
-// (promise of) nice array of tile Images, ordered same as the tilemap
+// nice array of tile Images, ordered same as the tilemap
 const tileDataToImages = tilemap =>
       range(Object.keys(tilemap).length - 1)
       .map(i => {
