@@ -30,17 +30,17 @@ function newBoard(x, y, init = (x,y) => 0) {
  *  Board iteration primitive
  *    - give a function to get an function that calls the given function on
  *      every cell in its board parameter
+ *    - additional parameters specify a rectangular 2D subarray
+ *      of dimensions [x1,x2), [y1,y2)  
+ *    - in all cases it assumes its input is rectangular
  *    - 'for' loops faster than mapping/forEaching
  */
-const forEach = (fun = (arr,x,y) => arr[x][y]) => arr => {
+const forEach =
+      (fun = (arr,x,y) => arr[x][y]) =>
+      (arr, x1 = 0, y1 = 0, x2 = arr[0].length, y2 = arr.length) => {
 
-    const x = arr.length;
-    
-    for(let i = 0; i < x; ++i) {
-
-        const y = arr[i].length;
-        
-        for(let j = 0; j < y; ++j) {
+    for(let i = y1; i < y2; ++i) {
+        for(let j = x1; j < x2; ++j) {
             fun(arr, i, j);
         }
     }
