@@ -10,6 +10,8 @@ const {
 // a need for this?
 // process.env["NODE_OPTIONS"] = '--no-force-async-hooks-checks';
 
+const DEBUG = false;
+
 const BOARD = newBoard(64,64); // 4096 tiles
 setEach(() => Math.round(Math.random() * 149))(BOARD);    
 
@@ -17,15 +19,16 @@ setEach(() => Math.round(Math.random() * 149))(BOARD);
 const renderBoard = async () => {
 
     const ctx = document.querySelector('canvas').getContext('2d');
+    ctx.imageSmoothingEnabled = false;
     
     const tilemap = await loadTileData('tiledata.json');
     const images = tileDataToImages(tilemap);
     
     return (board) => {
         const start = performance.now();
-        render(images)(ctx)(board);
+        render(images)(ctx)(board,0,0,9,9);
         const nowms = Math.round(performance.now() - start);
-        console.log(`render cranked @${nowms}ms`);
+        if(DEBUG) console.log(`render cranked @${nowms}ms`);
     };
 };
 
@@ -40,7 +43,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const boardRender = await renderBoard();
     
     const wrapped = async (BOARD) => {
-        console.log(`wrapper was called @${Math.round(performance.now() / 1000)}`);
+        if(DEBUG) console.log(`wrapper was called @${Math.round(performance.now() / 1000)}`);
         boardRender(BOARD);
     };
     

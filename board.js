@@ -83,7 +83,7 @@ const tileDataToImages = tilemap =>
  * coordinate images and board to produce render output to canvas
  * ctx: canvas context: document.getElementById('canvas').getContext('2d')
  */
-const render = images => ctx => board => {
+const render = images => ctx => (board, x1, x2, y1, y2) => {
 
     // scaling and transformation between the input image and
     //   rendered image go here ie shading
@@ -93,17 +93,17 @@ const render = images => ctx => board => {
         const index = arr[x][y];
         const img = images[index];
 
-        const h = 8, w = 8;
+        const h = 64, w = 64; // !! hardcoded tile sizes
         
         const pos = {
             x: w * x,
             y: h * y 
         };
         
-        ctx.drawImage(img, pos.x, pos.y);
+        ctx.drawImage(img, pos.x, pos.y, w, h);
 
-    })(board);
-}
+    })(board, x1, x2, y1, y2);
+};
 
 module.exports = {
     render,
