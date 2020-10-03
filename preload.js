@@ -7,13 +7,19 @@ const {
     setEach
 } = require('./board');
 
+// All of the Node.js APIs are available in the preload process.
+// It has the same sandbox as a Chrome extension.
+
 // a need for this?
 // process.env["NODE_OPTIONS"] = '--no-force-async-hooks-checks';
 
-const DEBUG = false;
+// const currentSecond: Math.round(performance.now() / 1000
 
-const BOARD = newBoard(64,64); // 4096 tiles
-setEach(() => Math.round(Math.random() * 149))(BOARD);    
+const DEBUG = true;
+
+////////////////////////////////
+////////// Rendering ///////////
+////////////////////////////////
 
 // does set-up and returns the actual rendering fn
 const renderBoard = async () => {
@@ -26,31 +32,63 @@ const renderBoard = async () => {
     
     return (board) => {
         const start = performance.now();
-        render(images)(ctx)(board,0,0,9,9);
+        render(images)(ctx)(board,0,0,17,17);
         const nowms = Math.round(performance.now() - start);
         if(DEBUG) console.log(`render cranked @${nowms}ms`);
     };
 };
 
-// All of the Node.js APIs are available in the preload process.
-// It has the same sandbox as a Chrome extension.
+const BOARD = newBoard(64,64); // 4096 tiles
+setEach(() => Math.round(Math.random() * 149))(BOARD);    
+
+////////////////////////////////
+//// Establishing Callbacks ////
+////////////////////////////////
+
+const seedRenderer = async () => {
+
+    const boardRender = await renderBoard();
+
+    let start;
+    const wrapped = async (BOARD) => timestamp =>  {
+        
+        if (start === undefined)
+            start = timestamp;
+        const elapsed = timestamp - start;
+
+        if(DEBUG)
+            console.log(`wrapper was called @${elapsed}`);
+        
+        boardRender(BOARD);
+    };
+
+    /**
+     * A long integer value, the request id, that uniquely identifies the entry
+     * in the callback list. This is a non-zero value, but you may not make any
+     * other assumptions about its value. You can pass this value to 
+     * window.cancelAnimationFrame() to cancel the refresh callback request.
+     */
+    return window.requestAnimationFrame(await wrapped(BOARD));
+};
+
+// 1 time hook in
 window.addEventListener('DOMContentLoaded', async () => {
 
+    await seedRenderer();
+    
     // 32ms interval: ~30fps
     // 16ms interval: ~60fps
     const primary = seedEngine(2);
-
-    const boardRender = await renderBoard();
-    
-    const wrapped = async (BOARD) => {
-        if(DEBUG) console.log(`wrapper was called @${Math.round(performance.now() / 1000)}`);
-        boardRender(BOARD);
+    const prime = () => {
+        if(DEBUG)
+            console.log(`prime ran ${performance.now()}`);
     };
+    await primary(prime);
     
-    await primary(wrapped, BOARD);
 });
 
 // produce async engine call at specified interval
-const seedEngine = interval => async (engine, ...args) => {
-    setInterval(engine, interval, ...args);
-};
+// setInterval returns Timeout that can be fed to clearInterval
+const seedEngine = interval =>
+      async (engine, ...args) =>
+      setInterval(engine, interval, ...args);

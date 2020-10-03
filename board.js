@@ -93,7 +93,7 @@ const render = images => ctx => (board, x1, x2, y1, y2) => {
         const index = arr[x][y];
         const img = images[index];
 
-        const h = 64, w = 64; // !! hardcoded tile sizes
+        const h = 32, w = 32; // !! hardcoded tile sizes
         
         const pos = {
             x: w * x,
