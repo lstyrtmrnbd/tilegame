@@ -32,7 +32,7 @@ function newBoard(x, y, init = (x,y) => 0) {
  *      every cell in its board parameter
  *    - additional parameters specify a rectangular 2D subarray
  *      of dimensions [x1,x2), [y1,y2)  
- *    - in all cases it assumes its input is rectangular
+ *    - in all cases it assumes its input is rectangular via x2
  *    - 'for' loops faster than mapping/forEaching
  */
 const forEach =

@@ -34,7 +34,7 @@ const renderBoard = async () => {
         const start = performance.now();
         render(images)(ctx)(board);
         const nowms = Math.round(performance.now() - start);
-        if(DEBUG) console.log(`render cranked @${nowms}ms`);
+        if(DEBUG) console.log(`render cranked in ${nowms}ms`);
     };
 };
 
@@ -45,32 +45,27 @@ setEach(() => Math.round(Math.random() * 149))(BOARD);
 //// Establishing Callbacks ////
 ////////////////////////////////
 
-const seedRenderer = async () => {
+// prepare a render function to run at an interval
+const seedRenderer = async (interval) => {
 
-    const boardRender = await renderBoard();
+    const boardRender = await renderBoard(); // load resources
 
     let start;
-    const wrapped = BOARD => timestamp =>  {
+    return BOARD => timestamp =>  {
         
-        if (start === undefined)
-            start = timestamp;
+        if (start === undefined) start = timestamp;
         const elapsed = timestamp - start;
 
         if(DEBUG)
             console.log(`wrapper was called @${elapsed}`);
-        
-        boardRender(BOARD,0,0,17,17);
 
-        window.requestAnimationFrame(wrapped(BOARD));
+        if (Math.round(elapsed) % interval === 0) {
+            boardRender(BOARD,0,0,17,17);
+
+            if(DEBUG)
+                console.log(`board was rendered @${elapsed}`);
+        }
     };
-
-    /**
-     * A long integer value, the request id, that uniquely identifies the entry
-     * in the callback list. This is a non-zero value, but you may not make any
-     * other assumptions about its value. You can pass this value to 
-     * window.cancelAnimationFrame() to cancel the refresh callback request.
-     */
-    return window.requestAnimationFrame(wrapped(BOARD));
 };
 
 // produce async engine call at specified interval
@@ -79,21 +74,23 @@ const seedEngine = interval =>
       async (engine, ...args) =>
       setInterval(engine, interval, ...args);
 
-let RENDER_HANDLE;
 let PRIMARY_HANDLE;
 
 // 1 time hook in
 window.addEventListener('DOMContentLoaded', async () => {
 
-    RENDER_HANDLE = await seedRenderer();
+    // every 17ms, better slower than faster
+    const renderer = (await seedRenderer(17))(BOARD);
     
-    // 32ms interval: ~30fps
-    // 16ms interval: ~60fps
     const prime = () => {
         if(!DEBUG)
             console.log(`prime ran ${performance.now()}`);
+
+        renderer(performance.now());
     };
     
+    // 32ms interval: ~30fps
+    // 16ms interval: ~60fps    
     PRIMARY_HANDLE = await seedEngine(2)(prime);
     
 });
