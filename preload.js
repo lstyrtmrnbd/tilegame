@@ -50,7 +50,7 @@ const seedRenderer = async () => {
     const boardRender = await renderBoard();
 
     let start;
-    const wrapped = async (BOARD) => timestamp =>  {
+    const wrapped = BOARD => timestamp =>  {
         
         if (start === undefined)
             start = timestamp;
@@ -60,6 +60,8 @@ const seedRenderer = async () => {
             console.log(`wrapper was called @${elapsed}`);
         
         boardRender(BOARD,0,0,17,17);
+
+        window.requestAnimationFrame(wrapped(BOARD));
     };
 
     /**
@@ -68,7 +70,7 @@ const seedRenderer = async () => {
      * other assumptions about its value. You can pass this value to 
      * window.cancelAnimationFrame() to cancel the refresh callback request.
      */
-    return window.requestAnimationFrame(await wrapped(BOARD));
+    return window.requestAnimationFrame(wrapped(BOARD));
 };
 
 // produce async engine call at specified interval
