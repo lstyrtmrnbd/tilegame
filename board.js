@@ -3,7 +3,7 @@
 //////////////////////////////////////////////////////
 
 /**
- *  General 2D array constructor, maintains consistent x and y lengths
+ *  Rectangular 2D array constructor
  */
 function newBoard(x, y, init = (x,y) => 0) {
 

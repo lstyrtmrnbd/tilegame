@@ -30,9 +30,9 @@ const renderBoard = async () => {
     const tilemap = await loadTileData('tiledata.json');
     const images = tileDataToImages(tilemap);
     
-    return (board) => {
+    return (board,x1,x2,y1,y2) => {
         const start = performance.now();
-        render(images)(ctx)(board,0,0,17,17);
+        render(images)(ctx)(board);
         const nowms = Math.round(performance.now() - start);
         if(DEBUG) console.log(`render cranked @${nowms}ms`);
     };
@@ -59,7 +59,7 @@ const seedRenderer = async () => {
         if(DEBUG)
             console.log(`wrapper was called @${elapsed}`);
         
-        boardRender(BOARD);
+        boardRender(BOARD,0,0,17,17);
     };
 
     /**
@@ -71,24 +71,28 @@ const seedRenderer = async () => {
     return window.requestAnimationFrame(await wrapped(BOARD));
 };
 
-// 1 time hook in
-window.addEventListener('DOMContentLoaded', async () => {
-
-    await seedRenderer();
-    
-    // 32ms interval: ~30fps
-    // 16ms interval: ~60fps
-    const primary = seedEngine(2);
-    const prime = () => {
-        if(DEBUG)
-            console.log(`prime ran ${performance.now()}`);
-    };
-    await primary(prime);
-    
-});
-
 // produce async engine call at specified interval
 // setInterval returns Timeout that can be fed to clearInterval
 const seedEngine = interval =>
       async (engine, ...args) =>
       setInterval(engine, interval, ...args);
+
+let RENDER_HANDLE;
+let PRIMARY_HANDLE;
+
+// 1 time hook in
+window.addEventListener('DOMContentLoaded', async () => {
+
+    RENDER_HANDLE = await seedRenderer();
+    
+    // 32ms interval: ~30fps
+    // 16ms interval: ~60fps
+    const prime = () => {
+        if(!DEBUG)
+            console.log(`prime ran ${performance.now()}`);
+    };
+    
+    PRIMARY_HANDLE = await seedEngine(2)(prime);
+    
+});
+
